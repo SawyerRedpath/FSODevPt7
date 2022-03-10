@@ -74,7 +74,12 @@ const CreateNew = (props) => {
 
     props.displayNotification(content.value, 3)
     navigate('/')
+  }
 
+  const handleReset = () => {
+    content.reset()
+    author.reset()
+    info.reset()
   }
 
   return (
@@ -94,6 +99,7 @@ const CreateNew = (props) => {
           <input {...info} />
         </div>
         <button type="submit">create</button>
+        <button type="reset" onClick={handleReset}>reset</button>
       </form>
     </div>
   )
