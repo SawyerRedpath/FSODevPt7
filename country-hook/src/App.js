@@ -17,25 +17,51 @@ const useField = (type) => {
 
 const useCountry = (name) => {
   const [country, setCountry] = useState(null)
+  const [countryName, setCountryName] = useState('')
+  const [statusMessage, setStatusMessage] = useState('')
 
-  useEffect(() => {})
 
-  return country
+  useEffect(() => {
+    if (countryName) {
+      const fetchData = async () => {
+        try {
+          const response = await axios.get(`https://restcountries.com/v3.1/name/${countryName}?fullText=true`)
+          if (response.status === 200) {
+            setCountry(response.data[0])
+          }
+        } catch (exception) {
+          setCountry(null)
+          setStatusMessage('not found...')
+          setTimeout(() => {
+            setStatusMessage('')
+          }, 2000)
+        }
+      }
+      fetchData()
+    }
+  }, [countryName])
+
+  const set = name => setCountryName(name)
+
+  return { country, set, statusMessage }
 }
 
-const Country = ({ country }) => {
+const Country = ({ country, statusMessage }) => {
+  if (statusMessage) {
+    return <div>{statusMessage}</div>
+  }
   if (!country) {
-    return <div>not found...</div>
+    return null
   }
 
   return (
     <div>
       <h3>{country.name.common}</h3>
-      <div>population {country.population}</div> 
+      <div>population {country.population}</div>
       <div>capital {country.capital}</div>
-      <img src={country.flags.png} height='100' alt={`flag of ${country.name.common}`}/> 
+      <img src={country.flags.png} height='100' alt={`flag of ${country.name.common}`} />
     </div>
-  )  
+  )
 }
 
 const App = () => {
@@ -46,16 +72,17 @@ const App = () => {
   const fetch = (e) => {
     e.preventDefault()
     setName(nameInput.value)
+    country.set(nameInput.value)
   }
 
   return (
     <div>
       <form onSubmit={fetch}>
         <input {...nameInput} />
-        <button>find</button>
+        <button type="submit">find</button>
       </form>
 
-      <Country country={country} />
+      <Country country={country.country} statusMessage={country.statusMessage} />
     </div>
   )
 }
